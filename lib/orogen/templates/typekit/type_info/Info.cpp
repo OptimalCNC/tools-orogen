@@ -18,7 +18,21 @@ namespace orogen_typekits {
         public <%= base_class.join(", public ") %>
     {
         <%= type.method_name(true) %>TypeInfo()
-            : <%= base_class.first %>("<%= type.full_name %>") {}
+            : <%= base_class.first %>("<%= type.full_name %>")
+<% if type < Typelib::EnumType %>
+        {
+<%
+    seen_values = Set.new
+    type.keys.each do |name, value|
+        next if seen_values.include?(value)
+        seen_values << value
+%>
+            this->to_string[static_cast< <%= type.cxx_name %> >(<%= value %>)] = "<%= name %>";
+<%  end %>
+        }
+<% else %>
+        {}
+<% end %>
 
 <%  if !TypekitMarshallers::TypeInfo::Plugin.rtt_scripting? %>
         bool installTypeInfoObject(RTT::types::TypeInfo* ti) {
@@ -45,4 +59,3 @@ namespace orogen_typekits {
 }
 
 <%= Generation.render_template('typekit', 'TemplateInstanciation.cpp', binding) %>
-

@@ -56,6 +56,26 @@ class TC_GenerationTypekit < Minitest::Test
         end
     end
 
+    def test_enum_type_info_generation_uses_enum_type_info_and_symbolic_names
+        build_typegen "simple_enum_generation", "modules/typekit_simple/simple.h", []
+
+        generated_files = Dir.glob(
+            File.join(working_directory, "typekit_output", "**", "type_info", "*.cpp")
+        )
+        enum_info = generated_files.find do |path|
+            contents = File.read(path)
+            contents.include?("BASIC_ENUM") &&
+                contents.include?("/Test/BASIC_ENUM")
+        end
+
+        refute_nil enum_info, "failed to find generated BASIC_ENUM type info source"
+
+        generated = File.read(enum_info)
+        assert_match(/RTT::types::EnumTypeInfo<\s*::?Test::BASIC_ENUM\s*>/, generated)
+        assert_match(/to_string\[.*static_cast<\s*::?Test::BASIC_ENUM\s*>\(0\).*\]\s*=\s*\"VALUE_0\";/, generated)
+        assert_match(/to_string\[.*static_cast<\s*::?Test::BASIC_ENUM\s*>\(100\).*\]\s*=\s*\"VALUE_100\";/, generated)
+    end
+
     def check_output_file(basedir, name)
         output   = File.read(File.join(prefix_directory, name))
         expected = File.read(File.join(path_to_data, basedir, name))

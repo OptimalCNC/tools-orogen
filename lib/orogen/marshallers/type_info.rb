@@ -124,11 +124,11 @@ module OroGen
                 end
 
                 def info_type_header
-                    "rtt/types/TemplateTypeInfo.hpp"
+                    "rtt/types/EnumTypeInfo.hpp"
                 end
 
                 def info_type
-                    "RTT::types::TemplateTypeInfo"
+                    "RTT::types::EnumTypeInfo"
                 end
             end
 

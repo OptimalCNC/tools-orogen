@@ -3,6 +3,7 @@
 require "orogen/test"
 require "orogen/gen"
 require "fileutils"
+require "rbconfig"
 
 module OroGen
     module Gen
@@ -149,6 +150,7 @@ module OroGen
 
                 def build_typegen(name, header_files, transports)
                     @working_directory = File.join(path_to_test, "wc", name)
+                    repo_root = File.expand_path("..", path_to_test)
                     header_files = [*header_files].map do |file|
                         File.join(path_to_data, file)
                     end
@@ -164,13 +166,21 @@ module OroGen
                         header_files.each do |file|
                             FileUtils.cp file, "types"
                         end
-                        cmdline = ["typegen"]
+                        cmdline = [
+                            RbConfig.ruby,
+                            "-I", File.join(repo_root, "lib"),
+                            File.join(repo_root, "bin", "typegen")
+                        ]
                         unless transports.empty?
                             cmdline << "--transports=#{transports.join(',')}"
                         end
                         cmdline << "-o" << "typekit_output" << name << "types"
 
-                        assert(system(*cmdline, redirect_to_logfile),
+                        local_env = {}
+                        local_lib = File.join(repo_root, "lib")
+                        local_env["RUBYLIB"] = [local_lib, ENV["RUBYLIB"]].compact.join(":")
+
+                        assert(system(local_env, *cmdline, redirect_to_logfile),
                                "typegen failed, log file in #{logfile}")
                     end
 
