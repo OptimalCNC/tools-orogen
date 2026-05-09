@@ -12,26 +12,22 @@
 	["#{type.info_type}< #{type.cxx_name} >"]
     end
 %>
+<% constructor_body =
+    if TypekitMarshallers::TypeInfo::Plugin.rtt_scripting? && type < Typelib::EnumType
+        type.type_info_to_string_initializers("            ")
+    end
+%>
 
 namespace orogen_typekits {
     struct <%= type.method_name(true) %>TypeInfo :
         public <%= base_class.join(", public ") %>
     {
         <%= type.method_name(true) %>TypeInfo()
-            : <%= base_class.first %>("<%= type.full_name %>")
-<% if type < Typelib::EnumType %>
+            : <%= base_class.first %>("<%= type.full_name %>")<% if constructor_body && !constructor_body.empty? %>
         {
-<%
-    seen_values = Set.new
-    type.keys.each do |name, value|
-        next if seen_values.include?(value)
-        seen_values << value
-%>
-            this->to_string[static_cast< <%= type.cxx_name %> >(<%= value %>)] = "<%= name %>";
-<%  end %>
+<%= constructor_body %>
         }
-<% else %>
-        {}
+<% else %> {}
 <% end %>
 
 <%  if !TypekitMarshallers::TypeInfo::Plugin.rtt_scripting? %>
