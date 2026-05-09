@@ -124,11 +124,25 @@ module OroGen
                 end
 
                 def info_type_header
-                    "rtt/types/TemplateTypeInfo.hpp"
+                    "rtt/types/EnumTypeInfo.hpp"
                 end
 
                 def info_type
-                    "RTT::types::TemplateTypeInfo"
+                    "RTT::types::EnumTypeInfo"
+                end
+
+                def type_info_to_string_initializers(indent)
+                    result = []
+                    seen_values = {}
+                    keys.each do |name, value|
+                        next if seen_values.key?(value)
+
+                        seen_values[value] = true
+                        result << "#{indent}this->to_string[static_cast<#{cxx_name}>(#{value})] = \"#{name}\";"
+                    end
+                    return "" if result.empty?
+
+                    result.join("\n") + "\n"
                 end
             end
 

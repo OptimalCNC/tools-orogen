@@ -1,0 +1,3 @@
+name "enum_stream"
+
+import_types_from "enum_stream.hpp"

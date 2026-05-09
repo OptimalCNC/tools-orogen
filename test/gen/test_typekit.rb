@@ -203,6 +203,26 @@ class TC_GenerationTypekit < Minitest::Test
     end
     transport_tests "dependencies"
 
+    def test_enum_stream
+        build_test_project("modules/typekit_enum_stream", [], "bin/test") do |cmake|
+            cmake << <<~EOT
+                include_directories(${OrocosRTT_INCLUDE_DIRS})
+                include_directories(${CMAKE_CURRENT_SOURCE_DIR}/.orogen/typekit)
+                include_directories(${CMAKE_BINARY_DIR}/.orogen/typekit)
+                link_directories(${OrocosRTT_LIBRARY_DIRS})
+
+                add_executable(test test.cpp)
+                target_link_libraries(test enum_stream-typekit-${OROCOS_TARGET})
+                target_link_libraries(test ${OrocosRTT_LIBRARIES})
+
+                find_package(RTTPlugin COMPONENTS rtt-typekit)
+                target_link_libraries(test ${RTT_PLUGIN_rtt-typekit_LIBRARY})
+
+                install(TARGETS test RUNTIME DESTINATION bin)
+            EOT
+        end
+    end
+
     def test_parse_typelist_single_type_without_export_boolean
         typelist, interface_typelist = ImportedTypekit.parse_typelist("/string")
         assert_equal ["/string"], typelist

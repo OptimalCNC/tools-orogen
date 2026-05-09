@@ -12,13 +12,23 @@
 	["#{type.info_type}< #{type.cxx_name} >"]
     end
 %>
+<% constructor_body =
+    if TypekitMarshallers::TypeInfo::Plugin.rtt_scripting? && type < Typelib::EnumType
+        type.type_info_to_string_initializers("            ")
+    end
+%>
 
 namespace orogen_typekits {
     struct <%= type.method_name(true) %>TypeInfo :
         public <%= base_class.join(", public ") %>
     {
         <%= type.method_name(true) %>TypeInfo()
-            : <%= base_class.first %>("<%= type.full_name %>") {}
+            : <%= base_class.first %>("<%= type.full_name %>")<% if constructor_body && !constructor_body.empty? %>
+        {
+<%= constructor_body %>
+        }
+<% else %> {}
+<% end %>
 
 <%  if !TypekitMarshallers::TypeInfo::Plugin.rtt_scripting? %>
         bool installTypeInfoObject(RTT::types::TypeInfo* ti) {
@@ -45,4 +55,3 @@ namespace orogen_typekits {
 }
 
 <%= Generation.render_template('typekit', 'TemplateInstanciation.cpp', binding) %>
-
