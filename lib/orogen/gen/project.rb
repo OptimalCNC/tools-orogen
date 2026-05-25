@@ -293,6 +293,7 @@ module OroGen
 
                     @name    = nil
                     @version = "0.0"
+                    @cxx_standard = "c++17"
                     @used_typekits = []
                     @used_libraries = []
                     @typekit_libraries = []

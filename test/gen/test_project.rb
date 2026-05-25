@@ -70,6 +70,19 @@ class TC_GenerationProject < Minitest::Test
         assert_same c.registry.get("/int"), t
     end
 
+    def test_cxx_standard_defaults_to_cpp17
+        c = Project.new
+        assert_equal "c++17", c.cxx_standard
+        assert_equal "c++17", c.typekit.cxx_standard
+    end
+
+    def test_cxx_standard_override_updates_typekit
+        c = Project.new
+        c.cxx_standard "c++20"
+        assert_equal "c++20", c.cxx_standard
+        assert_equal "c++20", c.typekit.cxx_standard
+    end
+
     def test_find_type_should_build_arrays
         c = Project.new
         t = c.find_type "/int[12]"
