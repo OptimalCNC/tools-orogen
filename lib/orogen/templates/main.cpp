@@ -2,6 +2,7 @@
 
 #include <boost/program_options.hpp>
 #include <iostream>
+#include <memory>
 #include <rtt/internal/GlobalEngine.hpp>
 #include <rtt/TaskContext.hpp>
 
@@ -340,13 +341,8 @@ RTT::internal::GlobalEngine::Instance(ORO_SCHED_OTHER, RTT::os::LowestPriority);
     else
         task_name = prefix + task_name;
 
-#if __cplusplus < 201103L
-    std::auto_ptr<RTT::TaskContext> task_<%= task.name%>(
-            orogen::create_<%= task.task_model.name.gsub(/[^\w]/, '_') %>(task_name));
-#else
     std::unique_ptr<RTT::TaskContext> task_<%= task.name%>(
             orogen::create_<%= task.task_model.name.gsub(/[^\w]/, '_') %>(task_name));
-#endif
 
     <% if deployer.corba_enabled? %>
     RTT::corba::TaskContextServer::Create( task_<%= task.name %>.get(), use_naming );
@@ -541,4 +537,3 @@ RTT::internal::GlobalEngine::Instance(ORO_SCHED_OTHER, RTT::os::LowestPriority);
 
     return 0;
 }
-
