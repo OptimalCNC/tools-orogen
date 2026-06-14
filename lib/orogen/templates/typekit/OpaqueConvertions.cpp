@@ -43,11 +43,7 @@ type_sets.opaque_types.find_all { |opdef| !opdef.needs_copy? }.
     %>
 void orogen_typekits::fromIntermediate(<%= type.ref_type %> value, <%= target_type.arg_type %> _intermediate)
 {
-#if __cplusplus < 201103L
-    std::auto_ptr< <%= target_type.cxx_name %> > intermediate(new <%= target_type.cxx_name %>(_intermediate));
-#else
     std::unique_ptr< <%= target_type.cxx_name %> > intermediate(new <%= target_type.cxx_name %>(_intermediate));
-#endif
 <%= typekit.code_fromIntermediate(target_type, false, "    ") %>
 }
 <%
@@ -74,4 +70,3 @@ void orogen_typekits::fromIntermediate(<%= type.ref_type %> value<%= ", int leng
         result %>
 }
 <% end %>
-

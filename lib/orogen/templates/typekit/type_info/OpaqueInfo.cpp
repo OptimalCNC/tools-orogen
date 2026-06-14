@@ -50,11 +50,7 @@ namespace orogen_typekits {
             if (!intermediate_type_info->getCompositionFactory()->composeType(source, intermediate_ptr))
                 return false;
             <% else %>
-#if __cplusplus < 201103L
-            std::auto_ptr< <%= intermediate_type.cxx_name %> > intermediate(new <%= intermediate_type.cxx_name %>);
-#else
             std::unique_ptr< <%= intermediate_type.cxx_name %> > intermediate(new <%= intermediate_type.cxx_name %>);
-#endif
             typedef RTT::internal::ReferenceDataSource< <%= intermediate_type.cxx_name %> > IntermediateSource;
             IntermediateSource::shared_ptr intermediate_ptr =
                new IntermediateSource(*intermediate);
@@ -131,5 +127,4 @@ namespace orogen_typekits {
 }
 
 <%= Generation.render_template('typekit', 'TemplateInstanciation.cpp', binding) %>
-
 

@@ -594,7 +594,7 @@ module OroGen
                         "#{indent}orogen_typekits::fromIntermediate(value, temp);\n"
                     else
                         buffer <<
-                            "#{indent}std::auto_ptr< #{target_type.cxx_name} > temp(new #{target_type.cxx_name});\n" <<
+                            "#{indent}std::unique_ptr< #{target_type.cxx_name} > temp(new #{target_type.cxx_name});\n" <<
                             "#{indent}#{target_type.call_from_ros('*temp', 'ros')};\n"
                         "#{indent}if (orogen_typekits::fromIntermediate(value, temp.get())) temp.release();\n"
                     end

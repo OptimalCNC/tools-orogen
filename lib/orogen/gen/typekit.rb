@@ -917,7 +917,7 @@ module OroGen
                     # In other words, keep pending_loads an array
                     @pending_loads        = []
 
-                    @cxx_standard = nil
+                    @cxx_standard = "c++17"
 
                     type_export_policy :all
                     @selected_types = Set.new
