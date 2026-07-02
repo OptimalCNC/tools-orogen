@@ -22,13 +22,17 @@ orogen_typekits::<%= typekit.name %>MQueueTransportPlugin::<%= typekit.name %>MQ
         m_registry = Typelib::PluginManager::load("tlb", path);
     }
     catch(std::exception const& e) {
-        log(Error) << "cannot load the typekit's Typelib registry from" << endlog();
-        log(Error) << "  " << path << endlog();
+        Logger::log().logf(Logger::Error, "MQueueTransportPlugin",
+                           "cannot load the typekit's Typelib registry from");
+        Logger::log().logf(Logger::Error, "MQueueTransportPlugin",
+                           "  %s", path.c_str());
 #ifndef HAS_ROSLIB
-        log(Error) << "remember to do 'make install' before you use the oroGen-generated libraries ?" << endlog();
+        Logger::log().logf(Logger::Error, "MQueueTransportPlugin",
+                           "remember to do 'make install' before you use the oroGen-generated libraries ?");
 #endif
-        log(Error) << endlog();
-        log(Error) << "the MQueue transport will not be available for types defined in this typekit" << endlog();
+        Logger::log().logf(Logger::Error, "MQueueTransportPlugin", "");
+        Logger::log().logf(Logger::Error, "MQueueTransportPlugin",
+                           "the MQueue transport will not be available for types defined in this typekit");
     }
 }
 
@@ -68,4 +72,3 @@ std::string orogen_typekits::<%= typekit.name %>MQueueTransportPlugin::getName()
 { return "/orogen/<%= typekit.name %>/MQueue"; }
 
 ORO_TYPEKIT_PLUGIN(orogen_typekits::<%= typekit.name %>MQueueTransportPlugin);
-

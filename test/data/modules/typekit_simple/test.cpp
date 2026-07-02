@@ -19,6 +19,7 @@
 #endif
 
 #include <rtt/os/main.h>
+#include <rtt/Logger.hpp>
 #include <rtt/types/Types.hpp>
 #include <rtt/PropertyBag.hpp>
 #include <rtt/Property.hpp>
@@ -323,7 +324,7 @@ bool test_complex_array()
 
 int ORO_main(int argc, char** argv)
 {
-    log().setLogLevel( Logger::Debug );
+    RTT::Logger::log().setLogLevel( RTT::Logger::Debug );
     RTT::types::TypekitRepository::Import( new RTT::types::RealTimeTypekitPlugin );
     RTT::types::TypekitRepository::Import( new orogen_typekits::simpleTypekitPlugin );
 #ifdef WITH_CORBA
@@ -360,4 +361,3 @@ int ORO_main(int argc, char** argv)
 
     return 0;
 }
-

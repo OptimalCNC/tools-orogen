@@ -4,6 +4,7 @@
 <%= typekit.cxx_gen_includes(*typekit.include_for_type(intermediate_type)) %>
 <%= typekit.cxx_gen_includes(*typekit.type_info_includes_for_type(type)) %>
 #include <<%= typekit.name %>/typekit/OpaqueConvertions.hpp>
+#include <rtt/Logger.hpp>
 
 <% base_class =
     if !TypekitMarshallers::TypeInfo::Plugin.rtt_scripting?
@@ -71,7 +72,10 @@ namespace orogen_typekits {
             RTT::internal::AssignableDataSource<T>::shared_ptr value_source =
                 boost::dynamic_pointer_cast< RTT::internal::AssignableDataSource<T> >( item );
             if ( !value_source ) {
-                log(RTT::Error) << "TypeInfo of type "<< this->getTypeName() <<" can't handle (non-assignable) types of type "<< item->getTypeInfo() <<RTT::endlog();
+                RTT::Logger::log().logf(RTT::Logger::Error, "OpaqueInfo",
+                                        "TypeInfo of type %s can't handle (non-assignable) types of type %s",
+                                        this->getTypeName().c_str(),
+                                        item->getTypeInfo() ? item->getTypeInfo()->getTypeName().c_str() : "<unknown>");
                 return RTT::base::DataSourceBase::shared_ptr();
             }
 
@@ -91,7 +95,10 @@ namespace orogen_typekits {
             RTT::internal::AssignableDataSource<T>::shared_ptr value_source =
                 boost::dynamic_pointer_cast< RTT::internal::AssignableDataSource<T> >( item );
             if ( !value_source ) {
-                log(RTT::Error) << "TypeInfo of type "<< this->getTypeName() <<" can't handle (non-assignable) types of type "<< item->getTypeInfo() <<RTT::endlog();
+                RTT::Logger::log().logf(RTT::Logger::Error, "OpaqueInfo",
+                                        "TypeInfo of type %s can't handle (non-assignable) types of type %s",
+                                        this->getTypeName().c_str(),
+                                        item->getTypeInfo() ? item->getTypeInfo()->getTypeName().c_str() : "<unknown>");
                 return RTT::base::DataSourceBase::shared_ptr();
             }
 
@@ -127,4 +134,3 @@ namespace orogen_typekits {
 }
 
 <%= Generation.render_template('typekit', 'TemplateInstanciation.cpp', binding) %>
-

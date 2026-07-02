@@ -26,9 +26,11 @@ std::string orogen_typekits::<%= typekit.name %>TypelibTransportPlugin::getTypel
         if ( !ppath.empty() ) {
             return ppath + "/typekit" + "/<%= typekit.name %>.tlb";
         } else
-            log(Debug) << "Not a ros package: " << "<%= typekit.name %>" << endlog();
+            Logger::log().logf(Logger::Debug, "TypelibTransportPlugin",
+                               "Not a ros package: <%= typekit.name %>");
     } catch(...) {
-        log(Debug) << "Not a ros package: " << "<%= typekit.name %>" << endlog();
+        Logger::log().logf(Logger::Debug, "TypelibTransportPlugin",
+                           "Not a ros package: <%= typekit.name %>");
     }
 #endif
     return TYPEKIT_REGISTRY;
@@ -69,10 +71,14 @@ bool orogen_typekits::<%= typekit.name %>TypelibTransportPlugin::registerTranspo
         }
         catch(std::runtime_error const& e)
         {
-            log(Error) << "cannot register a typelib transport for " << type_name << endlog();
-            log(Error) << "  the following error occured:" << endlog();
-            log(Error) << "  " << e.what() << endlog();
-            log(Error) << "  the registry can be found at " << TYPEKIT_REGISTRY << endlog();
+            Logger::log().logf(Logger::Error, "TypelibTransportPlugin",
+                               "cannot register a typelib transport for %s", type_name.c_str());
+            Logger::log().logf(Logger::Error, "TypelibTransportPlugin",
+                               "  the following error occured:");
+            Logger::log().logf(Logger::Error, "TypelibTransportPlugin",
+                               "  %s", e.what());
+            Logger::log().logf(Logger::Error, "TypelibTransportPlugin",
+                               "  the registry can be found at %s", TYPEKIT_REGISTRY);
             return false;
         }
         return true;
@@ -83,4 +89,3 @@ bool orogen_typekits::<%= typekit.name %>TypelibTransportPlugin::registerTranspo
 }
 
 ORO_TYPEKIT_PLUGIN(orogen_typekits::<%= typekit.name %>TypelibTransportPlugin);
-

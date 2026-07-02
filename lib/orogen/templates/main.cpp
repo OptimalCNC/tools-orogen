@@ -250,8 +250,8 @@ int ORO_main(int argc, char* argv[])
 
 
    <% if deployer.loglevel %>
-   if ( log().getLogLevel() < Logger::<%= deployer.loglevel %> ) {
-       log().setLogLevel( Logger::<%= deployer.loglevel %> );
+   if ( RTT::Logger::log().getLogLevel() < RTT::Logger::<%= deployer.loglevel %> ) {
+       RTT::Logger::log().setLogLevel( RTT::Logger::<%= deployer.loglevel %> );
    }
    <% end %>
 
@@ -429,13 +429,15 @@ RTT::internal::GlobalEngine::Instance(ORO_SCHED_OTHER, RTT::os::LowestPriority);
         if task.context.needs_configuration? %>
     if (!task_<%= task.name %>->configure())
     {
-        RTT::log(RTT::Error) << "cannot configure <%= task.name %>" << RTT::endlog();
+        RTT::Logger::log().logf(RTT::Logger::Error, "orogen",
+                                "cannot configure <%= task.name %>");
         return -1;
     }
         <% end %>
     if (!task_<%= task.name %>->start())
     {
-        RTT::log(RTT::Error) << "cannot start <%= task.name %>" << RTT::endlog();
+        RTT::Logger::log().logf(RTT::Logger::Error, "orogen",
+                                "cannot start <%= task.name %>");
         return -1;
     }
     <% end %>
@@ -443,7 +445,8 @@ RTT::internal::GlobalEngine::Instance(ORO_SCHED_OTHER, RTT::os::LowestPriority);
 
     if(with_ros){
 <% if deployer.transports.include? 'ros' %>
-        RTT::log(RTT::Info)<<"Initializing ROS node"<<RTT::endlog();
+        RTT::Logger::log().logf(RTT::Logger::Info, "orogen",
+                                "Initializing ROS node");
         if(!ros::isInitialized()){
             int argc =__os_main_argc();
             char ** argv = __os_main_argv();
@@ -451,13 +454,15 @@ RTT::internal::GlobalEngine::Instance(ORO_SCHED_OTHER, RTT::os::LowestPriority);
           if(ros::master::check())
               ros::start();
           else{
-              RTT::log(RTT::Error)<<"No ros::master available"<<RTT::endlog();
+              RTT::Logger::log().logf(RTT::Logger::Error, "orogen",
+                                      "No ros::master available");
               return false;
           }
         }
         static ros::AsyncSpinner spinner(1); // Use 1 threads
         spinner.start();
-        RTT::log(RTT::Info)<<"ROS node spinner started"<<RTT::endlog();
+        RTT::Logger::log().logf(RTT::Logger::Info, "orogen",
+                                "ROS node spinner started");
 <% else %>
         throw std::runtime_error("Requesting to start as ROS node, but the support for 'ros' transport is not available. Recompile with 'ros' transport option!");
 <% end %>
