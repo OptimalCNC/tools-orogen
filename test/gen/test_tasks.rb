@@ -107,7 +107,7 @@ class TC_GenerationTasks < Minitest::Test
     def test_operation_returns
         meth = task.operation("methodName")
         assert_same(meth, meth.returns("/int"))
-        assert_equal("boost::int32_t methodName()", meth.signature)
+        assert_equal("std::int32_t methodName()", meth.signature)
         meth.returns nil
         assert_equal("void methodName()", meth.signature)
     end
@@ -117,9 +117,9 @@ class TC_GenerationTasks < Minitest::Test
         ret = meth.argument("arg1", "/std/string", "first argument")
                   .returns("int32_t")
         assert_same(meth, ret)
-        assert_equal("boost::int32_t methodName(::std::string const & arg1)",
+        assert_equal("std::int32_t methodName(::std::string const & arg1)",
                      meth.signature(true))
-        assert_equal("boost::int32_t(::std::string const &)", meth.signature(false))
+        assert_equal("std::int32_t(::std::string const &)", meth.signature(false))
         expected_arguments = [
             ["arg1", project.registry.get("std/string"), "first argument",
              "::std::string"]

@@ -106,7 +106,7 @@ module Typelib
                 elsif name == "/unsigned char"
                     "unsigned char"
                 else
-                    "boost::#{'u' if unsigned?}int#{size * 8}_t"
+                    "std::#{'u' if unsigned?}int#{size * 8}_t"
                 end
             else
                 basename
@@ -125,6 +125,23 @@ module Typelib
     end
 
     class Registry
+        RTT_BUILTIN_TYPE_NAMES = {
+            "/bool" => "Bool",
+            "/char" => "Char",
+            "/int8_t" => "Int8",
+            "/uint8_t" => "UInt8",
+            "/int16_t" => "Int16",
+            "/uint16_t" => "UInt16",
+            "/int32_t" => "Int32",
+            "/uint32_t" => "UInt32",
+            "/int64_t" => "Int64",
+            "/uint64_t" => "UInt64",
+            "/float" => "Float32",
+            "/double" => "Float64",
+            "/std/string" => "String",
+            "/nil" => "Void"
+        }.freeze
+
         # Returns true if +type+ is handled by the typekit that is included in
         # the RTT itself, and false otherwise.
         #
@@ -132,46 +149,15 @@ module Typelib
         # among the simple types -- only these can be used directly in
         # interfaces.
         def self.base_rtt_type?(type)
-            if type.name == "/std/string"
-                return true
-            elsif !(type <= Typelib::NumericType)
-                return false
-            end
-
-            if type.integer?
-                type.name == "/bool" || type.size == 4
-            else
-                type.name == "/double"
-            end
+            RTT_BUILTIN_TYPE_NAMES.key?(type.name)
         end
 
         # Returns the typename used by RTT to register the given type
         def self.rtt_typename(type)
-            unless @typelib_to_rtt_mappings
-                cxx_types = Typelib::Registry.new
-                Typelib::Registry.add_standard_cxx_types(cxx_types)
-                @typelib_to_rtt_mappings = {
-                    cxx_types.get("bool") => "bool",
-                    cxx_types.get("int") => "int",
-                    cxx_types.get("unsigned int") => "uint",
-                    cxx_types.get("float") => "float",
-                    cxx_types.get("double") => "double",
-                    cxx_types.get("char") => "char"
-                }
-            end
-
-            if type.name == "/std/string"
-                return "string"
+            if (rtt_name = RTT_BUILTIN_TYPE_NAMES[type.name])
+                rtt_name
             elsif !(type <= Typelib::NumericType)
                 return type.name
-            end
-
-            if type.name == "/bool"
-                "bool"
-            elsif (mapped = @typelib_to_rtt_mappings.find do |typelib, _|
-                typelib == type
-            end)
-                mapped[1]
             else
                 raise ArgumentError,
                       "#{type.name} is (probably) not registered on the RTT type system"

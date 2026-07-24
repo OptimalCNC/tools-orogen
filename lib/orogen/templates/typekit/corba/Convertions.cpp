@@ -24,7 +24,7 @@ needed_array_convertions, needed_convertions = needed_convertions.
 # And add the root array types to the result
 needed_array_convertions |= typesets.array_types
 
-# We cannot assume that the headers the user provide do include boost/cstdint.hpp
+# We cannot assume that the headers the user provides include cstdint
 # So, can't assume that all numeric types are already defined
 #
 # The only place where it matters, though, is when the int type appears in a

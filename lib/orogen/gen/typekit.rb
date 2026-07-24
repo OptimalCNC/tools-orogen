@@ -1408,7 +1408,7 @@ module OroGen
                     elsif type <= Typelib::NullType
                         []
                     elsif type <= Typelib::NumericType
-                        if type.integer? then [":boost/cstdint.hpp"]
+                        if type.integer? then [":cstdint"]
                         else
                             []
                         end
@@ -1697,7 +1697,12 @@ module OroGen
 
                 BASE_TYPES = ["int", "unsigned int", "double", "float", "bool", "char"]
                 BASE_TYPES_RTT_NAMES = {
-                    "unsigned int" => "uint"
+                    "int" => "Int32",
+                    "unsigned int" => "UInt32",
+                    "double" => "Float64",
+                    "float" => "Float32",
+                    "bool" => "Bool",
+                    "char" => "Char"
                 }
                 BASE_TYPES_NEEDED_TRANSPORTS = %w[typelib ros]
 
@@ -1708,11 +1713,11 @@ module OroGen
                     [1, 2, 4, 8].each do |int_size|
                         if base.include?("/int#{int_size * 8}_t")
                             base.get("/int#{int_size * 8}_t")
-                                .metadata.set("orogen_include", "boost/cstdint.hpp")
+                                .metadata.set("orogen_include", "cstdint")
                         end
                         if base.include?("/uint#{int_size * 8}_t")
                             base.get("/uint#{int_size * 8}_t")
-                                .metadata.set("orogen_include", "boost/cstdint.hpp")
+                                .metadata.set("orogen_include", "cstdint")
                         end
                     end
 

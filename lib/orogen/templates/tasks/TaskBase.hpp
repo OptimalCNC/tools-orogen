@@ -3,8 +3,8 @@
 #ifndef <%= task.full_namespace.tr(":","_").upcase %>_<%= task.basename.upcase %>_TASK_BASE_HPP
 #define <%= task.full_namespace.tr(":","_").upcase %>_<%= task.basename.upcase %>_TASK_BASE_HPP
 
+#include <cstdint>
 #include <string>
-#include <boost/cstdint.hpp>
 #include <<%= task.superclass.header_file %>>
 
 <% if !task.new_operations.empty? || task.superclass.name == "RTT::TaskContext" %>
@@ -152,4 +152,3 @@ namespace <%= space %>{
 <%= code_after.sort.join("\n") %>
 
 #endif
-

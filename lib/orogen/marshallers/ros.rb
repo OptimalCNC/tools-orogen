@@ -276,7 +276,7 @@ module OroGen
                         if type.integer?
                             if msg_name == "bool" then "bool"
                             else
-                                "boost::#{msg_name}_t"
+                                "std::#{msg_name}_t"
                             end
                         elsif type.size == 4
                             "float"
@@ -287,7 +287,7 @@ module OroGen
                                   "don't know what to use to represent #{type} on the ROS C++ mapping"
                         end
                     elsif type < Typelib::EnumType
-                        "boost::int32_t"
+                        "std::int32_t"
                     elsif msg_name == "time"
                         "ros::Time"
                     elsif msg_name == "string"
