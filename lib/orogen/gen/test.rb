@@ -171,7 +171,9 @@ module OroGen
                             "-I", File.join(repo_root, "lib"),
                             File.join(repo_root, "bin", "typegen")
                         ]
-                        unless transports.empty?
+                        if transports.empty?
+                            cmdline << "--notransports=corba,typelib,mqueue"
+                        else
                             cmdline << "--transports=#{transports.join(',')}"
                         end
                         cmdline << "-o" << "typekit_output" << name << "types"
@@ -207,11 +209,22 @@ module OroGen
                         project = Project.load(spec)
                         project.enable_transports(*transports)
 
-                        compile_wc(project) do
-                            FileUtils.cp "templates/CMakeLists.txt", "CMakeLists.txt"
-                            File.open("CMakeLists.txt", "a") do |io|
-                                yield(io) if block_given?
+                        previous_options = RTT_CPP.command_line_options
+                        RTT_CPP.command_line_options =
+                            if transports.empty?
+                                ["--no-transports"]
+                            else
+                                ["--transports=#{transports.join(',')}"]
                             end
+                        begin
+                            compile_wc(project) do
+                                FileUtils.cp "templates/CMakeLists.txt", "CMakeLists.txt"
+                                File.open("CMakeLists.txt", "a") do |io|
+                                    yield(io) if block_given?
+                                end
+                            end
+                        ensure
+                            RTT_CPP.command_line_options = previous_options
                         end
                     end
 

@@ -7,7 +7,6 @@ class TC_GenerationTasks < Minitest::Test
 
     def setup
         @project = OroGen::Gen::RTT_CPP::Project.new
-        @project.import_types_from "std"
         project.name "test"
         @task = project.task_context "Task"
         super
@@ -197,7 +196,6 @@ class TC_GenerationTasks < Minitest::Test
     def test_it_can_generate_tasks_with_a_default_activity
         task.default_activity :periodic, 10
         deployment = project.deployment "test"
-        project.enable_transports "corba"
         deployment.task "test", task
         create_wc("tasks/default_activity")
         compile_wc(project)

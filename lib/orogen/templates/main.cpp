@@ -211,16 +211,6 @@ bool setup_sigint_handler() {
 }
 <% end %>
 
-void *oro_thread(void *p){
-    while(!exiting){
-        char dummy;
-        int read_count = read(sigint_com[0], &dummy, sizeof(dummy));
-        if (read_count == 1)
-            exiting=true;
-    }
-    return NULL;
-}
-
 int ORO_main(int argc, char* argv[])
 {
    po::options_description desc("Options");
@@ -290,7 +280,9 @@ int ORO_main(int argc, char* argv[])
         prefix = vm["prefix"].as<std::string>();
 
     bool with_ros = vm["with-ros"].as<bool>();
+<% if deployer.corba_enabled? %>
     bool use_naming = vm["register-on-name-server"].as<bool>();
+<% end %>
 
     std::string task_name;
 
