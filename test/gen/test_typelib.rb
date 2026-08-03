@@ -84,4 +84,20 @@ describe Typelib do
             end
         end
     end
+
+    describe OroGen::Loaders::RTT do
+        it "exports the complete RTT-owned interface without an external std typekit" do
+            project = OroGen::Gen::RTT_CPP::Project.new
+            interface_types = %w[
+                /bool /char /int8_t /uint8_t /int16_t /uint16_t
+                /int32_t /uint32_t /int64_t /uint64_t /float /double
+                /std/string /std/vector</double> /array /nil /void
+            ]
+
+            interface_types.each do |type_name|
+                assert project.registry.include?(type_name), type_name
+                assert project.exported_type?(type_name), type_name
+            end
+        end
+    end
 end

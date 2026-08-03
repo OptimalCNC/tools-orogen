@@ -28,6 +28,14 @@ class TC_GenerationTypekit < Minitest::Test
         assert_equal [], typekit.normalize_registry.to_a
     end
 
+    def test_include_for_type_handles_builtin_numeric_types_without_metadata
+        registry = Typelib::CXXRegistry.new
+        typekit = OroGen::Gen::RTT_CPP::Typekit.new
+
+        assert_equal ["cstdint"], typekit.include_for_type(registry.get("/int32_t"))
+        assert_equal [], typekit.include_for_type(registry.get("/double"))
+    end
+
     def test_typekit_load_should_raise_LoadError_if_the_file_does_not_exist # rubocop:disable Naming/MethodName
         project = Project.new
         project.name "test_typekit_load"

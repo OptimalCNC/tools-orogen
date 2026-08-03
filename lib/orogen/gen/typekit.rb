@@ -833,6 +833,8 @@ module OroGen
                             registry.get(type_name)
                         rescue Typelib::NotFound
                             new_type = build_type(type_name)
+                            raise unless new_type
+
                             compute_orogen_include_on_type(new_type, {})
                             new_type
                         end
@@ -2429,6 +2431,10 @@ module OroGen
                 def include_for_type(type)
                     if (includes = existing_orogen_include_for_type(type))
                         return includes.map { |s| s.split(":").last }
+                    end
+
+                    if type <= Typelib::NumericType
+                        return type.integer? ? ["cstdint"] : []
                     end
 
                     if type.opaque?

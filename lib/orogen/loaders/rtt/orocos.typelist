@@ -7,7 +7,9 @@
 /int64_t 1
 /int8_t 1
 /nil 1
+/array 1
 /std/string 1
+/std/vector</double> 1
 /uint16_t 1
 /uint32_t 1
 /uint64_t 1

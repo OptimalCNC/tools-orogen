@@ -1,2 +1,7 @@
 <?xml version="1.0"?>
-<typelib />
+<typelib>
+  <container name="/std/vector&lt;/double&gt;" of="/double" size="0" kind="/std/vector">
+    <metadata key="orogen_include"><![CDATA[:vector]]></metadata>
+  </container>
+  <alias name="/array" source="/std/vector&lt;/double&gt;"/>
+</typelib>
