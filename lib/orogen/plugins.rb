@@ -2,7 +2,7 @@
 
 module OroGen
     def self.each_orogen_plugin_path(&block)
-        (ENV["OROGEN_PLUGIN_PATH"] || "").split(":").each(&block)
+        (ENV["OROGEN_PLUGIN_PATH"] || "").split(File::PATH_SEPARATOR).each(&block)
     end
 
     def self.each_orogen_plugin_dir

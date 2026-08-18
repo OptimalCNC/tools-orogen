@@ -17,21 +17,28 @@ ADD_CUSTOM_TARGET(regen
     <%= ruby_bin %> -S orogen <%= RTT_CPP.command_line_options.join(" ") %> <%= project.deffile %>
     WORKING_DIRECTORY ${PROJECT_SOURCE_DIR})
 
-add_custom_command(
-    OUTPUT ${PROJECT_SOURCE_DIR}/<%= RTT_CPP::AUTOMATIC_AREA_NAME %>/<%= File.basename(project.deffile) %>
-    DEPENDS <%= project.deffile %>
-    COMMENT "oroGen specification file changed. Run make regen first."
-    COMMAND /bin/false)
-
+if(WIN32)
+add_custom_target(check-uptodate ALL)
+else()
+    add_custom_command(
+        OUTPUT ${PROJECT_SOURCE_DIR}/<%= RTT_CPP::AUTOMATIC_AREA_NAME %>/<%= File.basename(project.deffile) %>
+        DEPENDS <%= project.deffile %>
+        COMMENT "oroGen specification file changed. Run make regen first."
+        COMMAND ${CMAKE_COMMAND} -E false)
 <% if File.file?(project.deffile) %>
 add_custom_target(check-uptodate ALL
     DEPENDS "${PROJECT_SOURCE_DIR}/<%= RTT_CPP::AUTOMATIC_AREA_NAME %>/<%= File.basename(project.deffile) %>")
 <% else %>
 add_custom_target(check-uptodate ALL)
 <% end %>
+endif()
 
 # In Orogen project, the build target is specified at generation time
 set(OROCOS_TARGET "<%= project.orocos_target %>")
+
+if(WIN32)
+    set(CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS ON)
+endif()
 
 # Enable -Wall for compilers that know it
 include(CheckCXXCompilerFlag)
@@ -57,7 +64,7 @@ endif()
 option(WITH_RPATH "enables or disables embedding RPath information in binaries" ON)
 if(WITH_RPATH)
     include(RPATHHandling)
-    CMAKE_USE_FULL_RPATH("${CMAKE_INSTALL_PREFIX}/lib:${CMAKE_INSTALL_PREFIX}/lib/orocos:${CMAKE_INSTALL_PREFIX}/lib/orocos/types")
+    CMAKE_USE_FULL_RPATH("${CMAKE_INSTALL_PREFIX}/lib;${CMAKE_INSTALL_PREFIX}/lib/orocos;${CMAKE_INSTALL_PREFIX}/lib/orocos/types")
 endif(WITH_RPATH)
 
 # Set the build type to debug by default

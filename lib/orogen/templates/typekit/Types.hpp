@@ -11,6 +11,7 @@
 #include <<%= tk.name %>/typekit/Types.hpp>
 <% end %>
 
+#ifndef _MSC_VER
 <% interface_types.each do |type| %>
 #ifdef ORO_CHANNEL_ELEMENT_HPP
     extern template class RTT::base::ChannelElement< <%= type.cxx_name %> >;
@@ -35,6 +36,7 @@
     extern template class RTT::Attribute< <%= type.cxx_name %> >;
 #endif
 <% end %>
+#endif
 
 #endif
 

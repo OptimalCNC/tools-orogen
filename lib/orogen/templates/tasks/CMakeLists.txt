@@ -24,8 +24,9 @@ SET_TARGET_PROPERTIES(${<%= project.name.upcase %>_TASKLIB_NAME}
 orogen_apply_task_library_options(${<%= project.name.upcase %>_TASKLIB_NAME})
 
 INSTALL(TARGETS ${<%= project.name.upcase %>_TASKLIB_NAME}
-    RUNTIME DESTINATION bin
-    LIBRARY DESTINATION lib/orocos)
+    RUNTIME DESTINATION lib/orocos
+    LIBRARY DESTINATION lib/orocos
+    ARCHIVE DESTINATION lib/orocos)
 
 INSTALL(FILES ${<%= project.name.upcase %>_TASKLIB_HEADERS}
     DESTINATION include/orocos/<%= project.name.downcase %>)

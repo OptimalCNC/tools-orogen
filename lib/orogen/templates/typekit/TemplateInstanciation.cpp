@@ -1,5 +1,6 @@
 /* Generated from orogen/lib/orogen/templates/typekit/TemplateInstanciation.cpp */
 
+#ifndef _MSC_VER
 #include <rtt/Port.hpp>
 #include <rtt/Attribute.hpp>
 #include <rtt/Property.hpp>
@@ -13,5 +14,6 @@ template class RTT::OutputPort< <%= type.cxx_name %> >;
 template class RTT::InputPort< <%= type.cxx_name %> >;
 template class RTT::Property< <%= type.cxx_name %> >;
 template class RTT::Attribute< <%= type.cxx_name %> >;
+#endif
 
 

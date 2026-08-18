@@ -15,6 +15,8 @@ Gem::Specification.new do |s|
     s.licenses = ["LGPLv2+"]
 
     s.require_paths = ["lib"]
+    s.bindir = "bin"
+    s.executables = %w[orogen typegen]
     s.extensions = []
     s.extra_rdoc_files = ["README.md"]
     s.files = `git ls-files -z`.split("\x0").reject do |f|
@@ -22,6 +24,7 @@ Gem::Specification.new do |s|
     end
 
     s.add_runtime_dependency "utilrb", ">= 3.0.0.a"
+    s.add_runtime_dependency "metaruby"
     s.add_development_dependency "coveralls"
     s.add_development_dependency "flexmock", ">= 2.0.0"
     s.add_development_dependency "minitest", ">= 5.0", "~> 5.0"

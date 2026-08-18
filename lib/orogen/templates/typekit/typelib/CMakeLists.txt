@@ -69,5 +69,8 @@ install(FILES ${PKG_CONFIG_FILE_TYPELIB} DESTINATION lib/pkgconfig)
 install(FILES
     TransportPlugin.hpp
     DESTINATION include/orocos/<%= typekit.name %>/transports/typelib)
-install(TARGETS ${libname_typelib} LIBRARY DESTINATION lib/orocos${OROCOS_PKG_DIR}/types)
+install(TARGETS ${libname_typelib}
+    RUNTIME DESTINATION lib/orocos${OROCOS_PKG_DIR}/types
+    LIBRARY DESTINATION lib/orocos${OROCOS_PKG_DIR}/types
+    ARCHIVE DESTINATION lib/orocos${OROCOS_PKG_DIR}/types)
 

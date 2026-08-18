@@ -4,8 +4,8 @@
 # Header for typegen-generated typekits
 #
 <% if typekit.standalone? %>
+cmake_minimum_required(VERSION 3.16)
 project("<%= typekit.name %>-typekit")
-cmake_minimum_required(VERSION 2.6)
 
 SET (CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/config")
 
@@ -49,8 +49,12 @@ orogen_pkg_check_modules(OrocosRTT REQUIRED "orocos-rtt-${OROCOS_TARGET}>=1.99.4
 ADD_CUSTOM_TARGET(regen
     <% ruby_bin   = RbConfig::CONFIG['RUBY_INSTALL_NAME']
        typegen_bin = 'typegen' %>
-   <%= typegen_bin %> <%= RTT_CPP.command_line_options.join(" ") %>
-   WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/<%= RTT_CPP.relative_generation_directory %>)
+   COMMAND <%= typegen_bin %>
+<% RTT_CPP.command_line_options.each do |option| %>
+       [==[<%= option %>]==]
+<% end %>
+   WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/<%= RTT_CPP.relative_generation_directory %>
+   VERBATIM)
 
 <% end %>
 # END if typekit.standalone?
@@ -62,8 +66,27 @@ if ( IS_ROS_PACKAGE )
     set (CMAKE_LIBRARY_OUTPUT_DIRECTORY ${${CMAKE_PROJECT_NAME}_SOURCE_DIR}/lib/orocos${OROCOS_SUFFIX}/types)
 endif( IS_ROS_PACKAGE ) 
 
-execute_process(COMMAND cmake -E create_symlink
-    ${CMAKE_CURRENT_BINARY_DIR} ${CMAKE_CURRENT_BINARY_DIR}/<%= typekit.name %>)
+if(WIN32)
+    if(NOT EXISTS "${CMAKE_CURRENT_BINARY_DIR}/<%= typekit.name %>")
+        file(TO_NATIVE_PATH
+            "${CMAKE_CURRENT_BINARY_DIR}/<%= typekit.name %>"
+            TYPEKIT_LINK_PATH)
+        file(TO_NATIVE_PATH
+            "${CMAKE_CURRENT_BINARY_DIR}"
+            TYPEKIT_LINK_TARGET)
+        execute_process(
+            COMMAND cmd.exe /d /c mklink /J
+                "${TYPEKIT_LINK_PATH}"
+                "${TYPEKIT_LINK_TARGET}"
+            RESULT_VARIABLE TYPEKIT_LINK_RESULT)
+        if(NOT TYPEKIT_LINK_RESULT EQUAL 0)
+            message(FATAL_ERROR "failed to create the typekit include junction")
+        endif()
+    endif()
+else()
+    execute_process(COMMAND cmake -E create_symlink
+        ${CMAKE_CURRENT_BINARY_DIR} ${CMAKE_CURRENT_BINARY_DIR}/<%= typekit.name %>)
+endif()
 
 include_directories(BEFORE ${CMAKE_CURRENT_BINARY_DIR})
 include_directories(BEFORE ${CMAKE_CURRENT_SOURCE_DIR}/types)
@@ -115,7 +138,10 @@ target_compile_features(${libname} PUBLIC <%= typekit.cxx_standard.sub(/^(c|gnu)
 set(PKG_CONFIG_FILE ${CMAKE_CURRENT_BINARY_DIR}/<%= typekit.name %>-typekit-${OROCOS_TARGET}.pc)
 configure_file(<%= typekit.name %>-typekit.pc.in ${PKG_CONFIG_FILE} @ONLY)
 
-install(TARGETS ${libname} LIBRARY DESTINATION lib/orocos${OROCOS_PKG_DIR}/types)
+install(TARGETS ${libname}
+    RUNTIME DESTINATION lib/orocos${OROCOS_PKG_DIR}/types
+    LIBRARY DESTINATION lib/orocos${OROCOS_PKG_DIR}/types
+    ARCHIVE DESTINATION lib/orocos${OROCOS_PKG_DIR}/types)
 install(FILES Types.hpp Opaques.hpp
     DESTINATION include/orocos/<%= typekit.name %>)
 install(FILES
@@ -153,21 +179,25 @@ install(FILES <%= typekit.name %>.tlb
 end %>
 
 # Force the user to regenerate its typekit if the inputs changed
-set(TK_STAMP "${CMAKE_CURRENT_SOURCE_DIR}/stamp")
-get_directory_property(include_path INCLUDE_DIRECTORIES)
-foreach(dep <%= typekit.included_files.to_set.sort.join(" ") %>)
-    find_file(dep_full_path ${dep} PATHS ${include_path})
-    if (NOT dep_full_path)
-        message(FATAL_ERROR "cannot find ${dep} in ${include_path}. This should never happen, report this as an oroGen bug")
-    endif()
-    list(APPEND TYPEKIT_SOURCE_HEADERS ${dep_full_path})
-    unset(dep_full_path CACHE)
-endforeach()
-add_custom_command(
-    OUTPUT "${TK_STAMP}"
-    DEPENDS ${TYPEKIT_SOURCE_HEADERS}
-    COMMENT "Typekit input changed. Run make regen in your build directory first"
-    COMMAND /bin/false)
-add_custom_target(check-typekit-uptodate ALL DEPENDS "${TK_STAMP}")
+if(WIN32)
+    add_custom_target(check-typekit-uptodate)
+else()
+    set(TK_STAMP "${CMAKE_CURRENT_SOURCE_DIR}/stamp")
+    get_directory_property(include_path INCLUDE_DIRECTORIES)
+    foreach(dep <%= typekit.included_files.to_set.sort.join(" ") %>)
+        find_file(dep_full_path ${dep} PATHS ${include_path})
+        if (NOT dep_full_path)
+            message(FATAL_ERROR "cannot find ${dep} in ${include_path}. This should never happen, report this as an oroGen bug")
+        endif()
+        list(APPEND TYPEKIT_SOURCE_HEADERS ${dep_full_path})
+        unset(dep_full_path CACHE)
+    endforeach()
+    add_custom_command(
+        OUTPUT "${TK_STAMP}"
+        DEPENDS ${TYPEKIT_SOURCE_HEADERS}
+        COMMENT "Typekit input changed. Run make regen in your build directory first"
+        COMMAND ${CMAKE_COMMAND} -E false)
+    add_custom_target(check-typekit-uptodate ALL DEPENDS "${TK_STAMP}")
+endif()
 add_dependencies(${libname} check-typekit-uptodate)
 

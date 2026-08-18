@@ -9,7 +9,7 @@ require "pathname"
 # Disable typelib plugin loading
 Typelib.load_type_plugins = false
 
-DEFAULT_TRANSPORTS = %w[corba typelib mqueue]
+DEFAULT_TRANSPORTS = Gem.win_platform? ? %w[typelib] : %w[corba typelib mqueue]
 
 rtt_cpp = OroGen::Gen::RTT_CPP
 

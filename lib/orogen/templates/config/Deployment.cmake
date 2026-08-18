@@ -16,7 +16,11 @@ if(service_discovery_FOUND)
     link_directories(${service_discovery_LIBRARY_DIRS})
 endif()
 
-find_package(Boost REQUIRED COMPONENTS system program_options)
+if(WIN32)
+    find_package(Boost CONFIG REQUIRED COMPONENTS system program_options)
+else()
+    find_package(Boost REQUIRED COMPONENTS system program_options)
+endif()
 include_directories(${Boost_INCLUDE_DIRS})
 link_directories(${Boost_LIBRARY_DIRS})
 
@@ -33,7 +37,11 @@ if(service_discovery_FOUND)
     target_link_libraries(<%= deployer.name %> ${service_discovery_LIBRARIES})
 endif()
 
-target_link_libraries(<%= deployer.name %> ${Boost_PROGRAM_OPTIONS_LIBRARIES} ${Boost_SYSTEM_LIBRARIES})
+if(WIN32)
+    target_link_libraries(<%= deployer.name %> Boost::program_options Boost::system)
+else()
+    target_link_libraries(<%= deployer.name %> ${Boost_PROGRAM_OPTIONS_LIBRARIES} ${Boost_SYSTEM_LIBRARIES})
+endif()
 
 <% deployer.each_needed_global_cpp_initializer do |init| %>
 <%= ERB.new(init.deployment_cmake).result(binding) %>

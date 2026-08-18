@@ -229,7 +229,11 @@ module OroGen
             # @return [String] the resolved path
             # @raise LibraryNotFound if the library cannot be found
             def resolve_package_library(package, library_name)
-                libname = "lib#{library_name}.#{Loaders.shared_library_suffix}"
+                libname = if Loaders.windows?
+                              "#{library_name}.#{Loaders.shared_library_suffix}"
+                          else
+                              "lib#{library_name}.#{Loaders.shared_library_suffix}"
+                          end
                 package.library_dirs.each do |dir|
                     if File.exist?(path = File.join(dir, libname))
                         return path

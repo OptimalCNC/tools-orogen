@@ -391,6 +391,40 @@ module OroGen
             # Helper method used to create a symbolic link. If a link already
             # exists, it makes sure that it is up to date
             def self.create_or_update_symlink(source, target)
+                if Gem.win_platform?
+                    FileUtils.mkdir_p(File.dirname(target))
+                    if File.directory?(source)
+                        if File.symlink?(target)
+                            pointed_to = File.expand_path(
+                                File.readlink(target), File.dirname(target)
+                            )
+                            return if pointed_to == File.expand_path(source)
+
+                            FileUtils.rm_f(target)
+                        elsif File.exist?(target)
+                            raise ConfigError,
+                                  "#{target} was expected to be a directory junction, but is not"
+                        end
+
+                        native_target = target.tr("/", "\\")
+                        native_source = source.tr("/", "\\")
+                        created = system(
+                            "cmd.exe", "/d", "/c", "mklink", "/J",
+                            native_target, native_source,
+                            out: File::NULL, err: File::NULL
+                        )
+                        unless created
+                            raise ConfigError,
+                                  "cannot create directory junction #{target} -> #{source}"
+                        end
+                    else
+                        FileUtils.rm_f(target) if File.symlink?(target)
+                        FileUtils.cp(source, target)
+                        generated_files << File.expand_path(target)
+                    end
+                    return
+                end
+
                 if File.exist?(target)
                     unless File.symlink?(target)
                         raise ConfigError,
@@ -1421,7 +1455,7 @@ module OroGen
                             return
                         end
 
-                        file, line = location.split(":")
+                        file, _, line = location.rpartition(":")
                         unless File.file?(file)
                             RTT_CPP.debug("resolve_registry_includes: deleting non-existing 'line' entry in metadata 'source_file_line'=#{location}")
                             type.metadata.delete("source_file_line")
@@ -1503,8 +1537,14 @@ module OroGen
                             mode = ::Regexp.last_match(3)
 
                             if mode == "1"
+                                resolved_file = begin
+                                    File.realpath(file)
+                                rescue Errno::ENOENT, Errno::EINVAL
+                                    file
+                                end
                                 toplevel_file =
-                                    if toplevel_files.include?(file) then file
+                                    if toplevel_files.include?(resolved_file)
+                                        resolved_file
                                     else
                                         current_file.last[0]
                                     end
@@ -1515,14 +1555,7 @@ module OroGen
                                 # into the preprocessed output (read here), so we
                                 # have to flattend the path. this can fail for
                                 # "built-in" for examples, thus the rescue.
-                                begin
-                                    current_file.push [toplevel_file,
-                                                       File.realpath(file), lineno]
-                                rescue Errno::ENOENT
-                                    # now file is smth like "<built-in>" or
-                                    # similar, at it anyways...
-                                    current_file.push [toplevel_file, file, lineno]
-                                end
+                                current_file.push [toplevel_file, resolved_file, lineno]
                             elsif mode == "2"
                                 current_file.pop
                             end

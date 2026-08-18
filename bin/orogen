@@ -9,7 +9,7 @@ require "optparse"
 # Disable typelib plugin loading
 Typelib.load_type_plugins = false
 
-DEFAULT_TRANSPORTS = %w[corba typelib mqueue]
+DEFAULT_TRANSPORTS = Gem.win_platform? ? %w[typelib] : %w[corba typelib mqueue]
 DEFAULT_EXTENSIONS = %w[]
 
 rtt_cpp = OroGen::Gen::RTT_CPP
@@ -75,10 +75,10 @@ parser = OptionParser.new do |opt|
     end
 
     opt.on("--target=TARGET",
-           "set the orocos build target (gnulinux or xenomai)") do |target|
+           "set the orocos build target (gnulinux, xenomai or win32)") do |target|
         target = target.to_s
-        if target !~ /^(gnulinux|xenomai)$/
-            warn "unknown target '#{target}', possible values are gnulinux and xenomai"
+        if target !~ /^(gnulinux|xenomai|win32)$/
+            warn "unknown target '#{target}', possible values are gnulinux, xenomai and win32"
             exit 1
         end
 
