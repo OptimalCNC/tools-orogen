@@ -1527,6 +1527,14 @@ module OroGen
 
                 def resolve_toplevel_include_mapping(toplevel_files, **options)
                     preprocessed = Typelib::CXX.preprocess(toplevel_files, "c", **options)
+                    resolved_toplevel_files = toplevel_files.each_with_object({}) do |file, result|
+                        resolved_file = begin
+                            File.realpath(file)
+                        rescue Errno::ENOENT, Errno::EINVAL
+                            file
+                        end
+                        result[resolved_file] = file
+                    end
 
                     owners = Hash.new { |h, k| h[k] = [] }
                     current_file = [[]]
@@ -1543,11 +1551,9 @@ module OroGen
                                     file
                                 end
                                 toplevel_file =
-                                    if toplevel_files.include?(resolved_file)
-                                        resolved_file
-                                    else
-                                        current_file.last[0]
-                                    end
+                                    resolved_toplevel_files.fetch(
+                                        resolved_file, current_file.last[0]
+                                    )
                                 # the gccxml-importer always reported "flattened"
                                 # filepath, like "/usr/include/c++/4.9/bits".
                                 # clang++ does print

@@ -36,6 +36,24 @@ class TC_GenerationTypekit < Minitest::Test
         assert_equal [], typekit.include_for_type(registry.get("/double"))
     end
 
+    def test_toplevel_include_mapping_preserves_symlink_path
+        skip "symbolic links are not used for Windows generator inputs" if Gem.win_platform?
+
+        create_wc "symlink_toplevel_include"
+        real_header = File.join(working_directory, "source", "types.hpp")
+        linked_header = File.join(working_directory, "include", "types.hpp")
+        FileUtils.mkdir_p File.dirname(real_header)
+        FileUtils.mkdir_p File.dirname(linked_header)
+        File.write(real_header, "struct SymlinkType { int value; };\n")
+        FileUtils.ln_s real_header, linked_header
+
+        typekit = OroGen::Gen::RTT_CPP::Typekit.new
+        _preprocessed, owners =
+            typekit.resolve_toplevel_include_mapping([linked_header])
+
+        assert_equal linked_header, owners[File.realpath(linked_header)][1]
+    end
+
     def test_typekit_load_should_raise_LoadError_if_the_file_does_not_exist # rubocop:disable Naming/MethodName
         project = Project.new
         project.name "test_typekit_load"
